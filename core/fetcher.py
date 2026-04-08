@@ -3,7 +3,7 @@ from urllib.parse import quote
 
 
 def fetch_papers(query, max_results=5):
-    query_encoded = quote(query)  # ✅ FIX
+    query_encoded = quote(query) 
     
     url = f"http://export.arxiv.org/api/query?search_query=all:{query_encoded}&max_results={max_results}"
     
