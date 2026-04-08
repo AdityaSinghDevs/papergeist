@@ -1,0 +1,10 @@
+app:
+  default_field: "machine learning"
+  papers_per_day: 3
+
+scheduler:
+  check_interval_minutes: 5 
+
+paths:
+  users_file: "data/users.json"
+  sent_file: "data/sent.json"
