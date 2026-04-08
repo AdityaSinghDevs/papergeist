@@ -91,14 +91,29 @@ async def manual(msg: types.Message):
     from core.llm import summarize
     from core.sender import send_paper
     
-    users = read_json(cfg["paths"]["users_file"], {})
-    user = users.get(str(msg.chat.id), {})
-    
-    field = user.get("field", cfg["app"]["default_field"])
-    
-    papers = fetch_papers(field)
-    papers = filter_new_papers(papers)
-    
-    for p in papers:
-        summary = await asyncio.to_thread(summarize, p["summary"])
-        await send_paper(bot, msg.chat.id, p, summary)
+    try:
+        users = read_json(cfg["paths"]["users_file"], {})
+        user = users.get(str(msg.chat.id), {})
+        field = user.get("field", cfg["app"]["default_field"])
+        
+        await msg.reply("fetching papers... hang on")
+        
+        papers = fetch_papers(field)
+        papers = filter_new_papers(papers)
+        
+        if not papers:
+            await msg.reply("no new papers found (or ghost ate them)")
+            return
+        
+        for p in papers:
+            try:
+                summary = await asyncio.to_thread(summarize, p["summary"])
+            except Exception as e:
+                print("Groq error:", e)
+                summary = "summary unavailable"
+            
+            await send_paper(bot, msg.chat.id, p, summary)
+
+    except Exception as e:
+        print("PAPERS ERROR:", e)
+        await msg.reply("something broke while fetching papers")
