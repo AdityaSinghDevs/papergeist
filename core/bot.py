@@ -109,20 +109,26 @@ async def ask_time(msg: types.Message):
 @dp.message_handler(state=UserState.waiting_for_time)
 async def save_time(msg: types.Message, state: FSMContext):
     try:
-        hour = int(msg.text)
+        time_text = msg.text.strip()
+        hour, minute = map(int, time_text.split(":"))
+        
         assert 0 <= hour <= 23
+        assert 0 <= minute <= 59
+
     except:
-        await msg.reply("enter a valid hour (0–23)")
+        await msg.reply(" ⏰ Enter time you want me to haunt you daily ex:18:30 (24hr format)")
         return
 
     users = read_json(cfg["paths"]["users_file"], {})
     user = users.get(str(msg.chat.id), {})
+    
     user["hour"] = hour
+    user["minute"] = minute
 
     users[str(msg.chat.id)] = user
     write_json(cfg["paths"]["users_file"], users)
 
-    await msg.reply(f"time set to {hour}:00", reply_markup=main_keyboard())
+    await msg.reply(f"time set to {hour:02d}:{minute:02d}")
     await state.finish()
 
 

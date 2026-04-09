@@ -1,5 +1,6 @@
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from datetime import datetime
+import pytz
 import asyncio 
 
 from utils.file_utils import read_json
@@ -16,13 +17,18 @@ cfg = load_cfg("configs/config.yaml")
 async def job(bot):
     users = read_json(cfg["paths"]["users_file"], {})
 
-    current_hour = datetime.now().hour
+    now = datetime.now(pytz.timezone("Asia/Kolkata"))
+    current_hour = now.hour
+    current_minute = now.minute
 
     for chat_id, prefs in users.items():
         user_hour = prefs.get("hour", 9)
+        user_minute = prefs.get("minute", 0)
+
         field = prefs.get("field", cfg["app"]["default_field"])
 
-        if user_hour != current_hour:
+        # allow small window (±1 min)
+        if not (user_hour == current_hour and abs(user_minute - current_minute) <= 1):
             continue
 
         offset = prefs.get("offset", 0)
@@ -41,7 +47,7 @@ async def job(bot):
                 summary = "Summary Unavailable"
 
             await send_paper(bot, int(chat_id), p, summary)
-            
+
     from utils.file_utils import write_json
     write_json(cfg["paths"]["users_file"], users)
 
