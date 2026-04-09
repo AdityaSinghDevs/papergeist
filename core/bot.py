@@ -42,13 +42,34 @@ def main_keyboard():
 @dp.message_handler(commands=["start"])
 async def start(msg: types.Message):
     await msg.reply(
-        "alright listen.\n"
-        "i’m papergeist. i haunt research papers.\n\n"
+        "👻 Boo! I'm PaperGeist\n"
+        "yeah yeah relax, i'm not that kind of ghost.\n"
+        "i just haunt research papers and drop them in your chat.\n\n"
         
-        "step 1 → click 'Set Field'\n"
-        "step 2 → click 'Set Time'\n\n"
+        "here’s how this works:\n\n"
         
-        "or just press 'Get Papers' if you're impatient.",
+        "1) tell me what you care about\n"
+        "/setfield {your topic of interest}\n\n"
+        
+        "2) tell me at what hour to bother you (0–23) daily\n"
+        "/settime 18\n\n"
+        
+        "that’s it. i’ll send you papers daily at that time.\n\n"
+        
+        "Want papers right now?\n"
+        "/papers\n\n"
+        
+        "other stuff:\n"
+        "/myprefs – see what you told me\n"
+        "/setfield <topic> – change your field\n"
+        "/settime <hour> – change timing\n\n"
+        
+        "this is a prototype, so if something breaks...\n"
+        "just assume it’s part of the haunting.\n\n"
+        
+        "go on, summon something interesting.\n\n",
+
+        "You can also use quick buttons to save time!! hAsta La vista",
         
         reply_markup=main_keyboard()
     )
