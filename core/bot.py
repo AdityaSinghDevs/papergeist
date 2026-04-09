@@ -116,7 +116,7 @@ async def save_time(msg: types.Message, state: FSMContext):
         assert 0 <= minute <= 59
 
     except:
-        await msg.reply(" ⏰ Enter time you want me to haunt you daily ex:18:30 (24hr format)")
+        await msg.reply(" ⏰ Enter time you want me to haunt you daily (24hr format) eg-18:30")
         return
 
     users = read_json(cfg["paths"]["users_file"], {})
