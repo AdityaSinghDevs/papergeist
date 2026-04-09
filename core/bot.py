@@ -148,15 +148,22 @@ async def manual(msg: types.Message):
     try:
         users = read_json(cfg["paths"]["users_file"], {})
         user = users.get(str(msg.chat.id), {})
+
+        offset = user.get("offset", 0)
+
         field = user.get("field", cfg["app"]["default_field"])
         
-        await msg.reply("fetching papers...")
+        await msg.reply("fetching papers...hang on...")
 
-        papers = fetch_papers(field)
-        papers = filter_new_papers(papers)
+        papers = fetch_papers(field, start=offset)
+        papers = filter_new_papers(papers, msg.chat.id)
+
+        user["offset"] = offset + cfg["app"]["papers_per_day"]
+        users[str(msg.chat.id)] = user
+        write_json(cfg["paths"]["users_file"], users)
 
         if not papers:
-            await msg.reply("no papers found")
+            await msg.reply("no papers found (or maybe ghost ate them)")
             return
 
         for p in papers:

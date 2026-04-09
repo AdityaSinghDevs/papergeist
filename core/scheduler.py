@@ -14,7 +14,7 @@ scheduler = AsyncIOScheduler()
 cfg = load_cfg("configs/config.yaml")
 
 async def job(bot):
-    users = read_json(cfg["path"]["users_file"], {})
+    users = read_json(cfg["paths"]["users_file"], {})
 
     current_hour = datetime.now().hour
 
@@ -25,8 +25,14 @@ async def job(bot):
         if user_hour != current_hour:
             continue
 
-        papers = fetch_papers(field)
-        papers = filter_new_papers(papers)
+        offset = prefs.get("offset", 0)
+
+        papers = fetch_papers(field, start=offset)
+        papers = filter_new_papers(papers, chat_id)
+
+        # update offset
+        prefs["offset"] = offset + cfg["app"]["papers_per_day"]
+        users[str(chat_id)] = prefs
 
         for p in papers:
             try:
@@ -35,6 +41,9 @@ async def job(bot):
                 summary = "Summary Unavailable"
 
             await send_paper(bot, int(chat_id), p, summary)
+            
+    from utils.file_utils import write_json
+    write_json(cfg["paths"]["users_file"], users)
 
 def start(bot):
     import asyncio
